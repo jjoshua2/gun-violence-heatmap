@@ -1,0 +1,177 @@
+{
+  "acs_2022_median_household_income": {
+    "description": "Median household income in the past 12 months (in 2022 inflation-adjusted dollars) for each U.S. state and Puerto Rico.",
+    "source_organization": "U.S. Census Bureau",
+    "dataset": "American Community Survey (ACS) 1-year, 2022",
+    "table": "B19013",
+    "api_base": "https://api.census.gov/data/2022/acs/acs1",
+    "api_example_url": "https://api.census.gov/data/2022/acs/acs1?get=NAME,B19013_001E&for=state:*",
+    "variables": {
+      "NAME": "State or territory name",
+      "B19013_001E": "Estimate of median household income",
+      "state": "State FIPS code as a two-digit string; 72 is Puerto Rico"
+    },
+    "geographic_coverage": "50 states, District of Columbia, Puerto Rico (state:* in ACS API)",
+    "time_coverage": "2018-2022 survey period, reported as 2022 1-year estimates",
+    "notes": [
+      "Values are as returned directly by the ACS API; they are provided as strings in the raw data array.",
+      "To independently verify, visit the API example URL and compare the returned JSON array to the data stored in state_data_raw.json under acs_2022_median_household_income.data."
+    ]
+  },
+  "acs_2022_race_B02001_subset": {
+    "description": "Total population and selected race-alone counts (White alone, Black or African American alone, Asian alone) for each state and Puerto Rico.",
+    "source_organization": "U.S. Census Bureau",
+    "dataset": "American Community Survey (ACS) 1-year, 2022",
+    "table": "B02001 (Race)",
+    "api_base": "https://api.census.gov/data/2022/acs/acs1",
+    "api_example_url": "https://api.census.gov/data/2022/acs/acs1?get=NAME,B02001_001E,B02001_002E,B02001_003E,B02001_005E&for=state:*",
+    "variables": {
+      "B02001_001E": "Estimate!!Total population",
+      "B02001_002E": "Estimate!!Total:!!White alone",
+      "B02001_003E": "Estimate!!Total:!!Black or African American alone",
+      "B02001_005E": "Estimate!!Total:!!Asian alone",
+      "state": "State FIPS code as a two-digit string; 72 is Puerto Rico"
+    },
+    "geographic_coverage": "50 states, District of Columbia, Puerto Rico (state:* in ACS API)",
+    "time_coverage": "2018-2022 survey period, reported as 2022 1-year estimates",
+    "notes": [
+      "Only a subset of B02001 race categories is included here (White alone, Black or African American alone, Asian alone). Additional race categories can be added later by querying the same table.",
+      "Values are counts (not percentages). Percent shares by race can be computed in your application by dividing each race count by B02001_001E for that state.",
+      "To verify, call the API example URL and compare the returned rows to the data stored in state_data_raw.json under acs_2022_race_B02001_subset.data."
+    ]
+  },
+  "acs_2022_subject_socioeconomic": {
+    "description": "State-level socio-economic percentages from ACS 2022: poverty rate, share of adults with a bachelor's degree or higher, and unemployment rate.",
+    "source_organization": "U.S. Census Bureau",
+    "dataset": "American Community Survey (ACS) 1-year, 2022 (Subject Tables)",
+    "tables": [
+      "S1701 (Poverty Status in the Past 12 Months)",
+      "S1501 (Educational Attainment)",
+      "S2301 (Employment Status)"
+    ],
+    "api_base": "https://api.census.gov/data/2022/acs/acs1/subject",
+    "api_example_url": "https://api.census.gov/data/2022/acs/acs1/subject?get=NAME,S1701_C03_001E,S1501_C02_015E,S2301_C04_001E&for=state:*",
+    "variables": {
+      "S1701_C03_001E": "Estimate!!Percent below poverty level!!Population for whom poverty status is determined",
+      "S1501_C02_015E": "Estimate!!Percent!!AGE BY EDUCATIONAL ATTAINMENT!!Population 25 years and over!!Bachelor's degree or higher",
+      "S2301_C04_001E": "Estimate!!Unemployment rate!!Population 16 years and over",
+      "state": "State FIPS code as a two-digit string; 72 is Puerto Rico"
+    },
+    "geographic_coverage": "50 states, District of Columbia, Puerto Rico (state:* in ACS subject API)",
+    "time_coverage": "2018-2022 survey period, reported as 2022 1-year subject estimates",
+    "notes": [
+      "All three variables are percentages, expressed as values like 16.2 (percent) rather than 0.162.",
+      "To verify, call the API example URL and compare the returned rows to the data stored in state_data_raw.json under acs_2022_subject_socioeconomic.data."
+    ]
+  },
+  "vsrr_2023Q1_firearm_related_injury_age_adjusted_death_rates": {
+    "description": "Provisional, age-adjusted death rates (per 100,000) for firearm-related injury by state, for the 12 months ending with 2023 Q1.",
+    "source_organization": "National Center for Health Statistics (NCHS), Centers for Disease Control and Prevention (CDC)",
+    "dataset": "NCHS - VSRR Quarterly provisional estimates for selected indicators",
+    "api_base": "https://data.cdc.gov/resource/489q-934x.json",
+    "api_example_url": "https://data.cdc.gov/resource/489q-934x.json?year_and_quarter=2023%20Q1&time_period=12%20months%20ending%20with%20quarter&rate_type=Age-adjusted&cause_of_death=Firearm-related%20injury",
+    "measure": "Age-adjusted death rate per 100,000 population for firearm-related injuries.",
+    "geographic_coverage": "50 states and District of Columbia (fields rate_alabama, rate_alaska, ..., rate_wyoming)",
+    "time_coverage": "12-month period ending with 2023 Q1 (provisional data)",
+    "important_caveats": [
+      "These are provisional estimates and may differ slightly from final NVSS mortality data.",
+      "State fields are provided as lowercased names prefixed with 'rate_', for example 'rate_alabama', 'rate_california', etc.",
+      "Rates are age-adjusted using a standard CDC methodology; they should not be interpreted as crude (unadjusted) rates."
+    ],
+    "verification_instructions": [
+      "Open the api_example_url in a browser or via an HTTP client.",
+      "Confirm that the single JSON object returned matches the object stored in state_data_raw.json under vsrr_2023Q1_firearm_related_injury_age_adjusted_death_rates.data."
+    ]
+  },
+  "vsrr_2023Q1_homicide_age_adjusted_death_rates": {
+    "description": "Provisional, age-adjusted death rates (per 100,000) for homicide by state, for the 12 months ending with 2023 Q1.",
+    "source_organization": "National Center for Health Statistics (NCHS), CDC",
+    "dataset": "NCHS - VSRR Quarterly provisional estimates for selected indicators",
+    "api_base": "https://data.cdc.gov/resource/489q-934x.json",
+    "api_example_url": "https://data.cdc.gov/resource/489q-934x.json?year_and_quarter=2023%20Q1&time_period=12%20months%20ending%20with%20quarter&rate_type=Age-adjusted&cause_of_death=Homicide",
+    "measure": "Age-adjusted death rate per 100,000 population for homicide deaths (all mechanisms).",
+    "geographic_coverage": "50 states and District of Columbia (fields rate_alabama, rate_alaska, ..., rate_wyoming)",
+    "time_coverage": "12-month period ending with 2023 Q1 (provisional data)",
+    "important_caveats": [
+      "Provisional mortality data are subject to revision and may not exactly match later final NVSS/WONDER tabulations.",
+      "Homicide here is defined per ICD-10 underlying cause codes used by NCHS for this indicator (see dataset documentation on data.cdc.gov for exact code list)."
+    ],
+    "verification_instructions": [
+      "Call the api_example_url.",
+      "Confirm that the returned JSON object matches the object stored in state_data_raw.json under vsrr_2023Q1_homicide_age_adjusted_death_rates.data."
+    ]
+  },
+  "vsrr_2023Q1_drug_overdose_age_adjusted_death_rates": {
+    "description": "Provisional, age-adjusted death rates (per 100,000) for drug overdose deaths by state, for the 12 months ending with 2023 Q1.",
+    "source_organization": "National Center for Health Statistics (NCHS), CDC",
+    "dataset": "NCHS - VSRR Quarterly provisional estimates for selected indicators",
+    "api_base": "https://data.cdc.gov/resource/489q-934x.json",
+    "api_example_url": "https://data.cdc.gov/resource/489q-934x.json?year_and_quarter=2023%20Q1&time_period=12%20months%20ending%20with%20quarter&rate_type=Age-adjusted&cause_of_death=Drug%20overdose",
+    "measure": "Age-adjusted death rate per 100,000 population for drug overdose deaths.",
+    "geographic_coverage": "50 states and District of Columbia (fields rate_alabama, rate_alaska, ..., rate_wyoming)",
+    "time_coverage": "12-month period ending with 2023 Q1 (provisional data)",
+    "important_caveats": [
+      "Provisional overdose mortality estimates are based on a flow of death certificate data and can change as investigations are completed.",
+      "The dataset uses an NCHS definition of drug overdose deaths based on ICD-10 underlying cause-of-death codes (see dataset documentation)."
+    ],
+    "verification_instructions": [
+      "Open the api_example_url.",
+      "Confirm that the returned JSON object matches the object stored in state_data_raw.json under vsrr_2023Q1_drug_overdose_age_adjusted_death_rates.data."
+    ]
+  },
+  "brfss_depression_reference": {
+    "description": "Reference to BRFSS prevalence data for lifetime diagnosis of depression among adults by state.",
+    "source_organization": "Centers for Disease Control and Prevention (CDC)",
+    "dataset": "Behavioral Risk Factor Surveillance System (BRFSS) Prevalence Data (2011 to present)",
+    "api_base": "https://data.cdc.gov/resource/dttw-5yxu.json",
+    "suggested_api_query_for_state_level_overall": "year=2022&topic=Depression&break_out=Overall&break_out_category=Overall&data_value_type=Crude Prevalence&response=Yes",
+    "question": "Ever told you that you have a form of depression? (questionid=ADDEPEV3)",
+    "measure": "Crude prevalence (percent) of adults who report ever having been told they have a form of depression.",
+    "notes": [
+      "Each row includes fields such as locationabbr (state postal code), locationdesc (state name), data_value (prevalence percent), and confidence limits.",
+      "As with heavy drinking, values can be fetched on demand via the documented query and integrated into the derived state metrics.",
+      "Use both heavy drinking and depression cautiously: they are self-reported BRFSS survey estimates, subject to sampling error and nonresponse bias."
+    ]
+  },
+  "brfss_heavy_drinking_reference": {
+    "description": "Reference to BRFSS prevalence data for heavy drinking by state; values are not fully inlined in state_data_raw.json yet, but the exact API slice is documented here for later integration.",
+    "source_organization": "Centers for Disease Control and Prevention (CDC)",
+    "dataset": "Behavioral Risk Factor Surveillance System (BRFSS) Prevalence Data (2011 to present)",
+    "api_base": "https://data.cdc.gov/resource/dttw-5yxu.json",
+    "suggested_api_query_for_state_level_overall": "year=2022&topic=Heavy Drinking&break_out=Overall&break_out_category=Overall&data_value_type=Crude Prevalence&response=Meet criteria for heavy drinking",
+    "notes": [
+      "When you are ready to add alcohol metrics, you can fetch state-level heavy drinking prevalence by calling the BRFSS API with the suggested query.",
+      "Each row includes fields such as locationabbr (state postal code), locationdesc (state name), data_value (prevalence percent), and confidence limits.",
+      "Because the BRFSS slice is relatively large and you may wish to apply your own filters (e.g., age-adjusted vs crude), the raw numeric values were not fully duplicated into state_data_raw.json in this iteration."
+    ]
+  },
+  "giffords_gun_law_scorecard_2022": {
+    "description": "State gun law strength grades and rankings from GIFFORDS Law Center Annual Gun Law Scorecard, released February 2022.",
+    "source_organization": "GIFFORDS Law Center to Prevent Gun Violence",
+    "dataset": "Annual Gun Law Scorecard 2022",
+    "source_url": "https://giffords.org/lawcenter/resources/scorecard2022/",
+    "press_release_url": "https://giffords.org/lawcenter/press-release/2022/02/annual-gun-law-scorecard-shows-states-with-strong-gun-laws-see-less-gun-violence/",
+    "variables": {
+      "grade": "Letter grade (A, A-, B+, B, B-, C+, C, C-, D+, D, D-, F) indicating strength of state gun laws",
+      "rank": "Numerical ranking from 1 (strongest gun laws) to 50 (weakest gun laws)"
+    },
+    "geographic_coverage": "50 states and District of Columbia",
+    "time_coverage": "2022 scorecard (released February 2022, evaluating gun laws as of end of 2021)",
+    "methodology": [
+      "GIFFORDS legal experts track and analyze gun legislation in all 50 states throughout the year.",
+      "Laws and policies are assigned point values based on their respective strengths or weaknesses.",
+      "States are ranked and given letter grades based on total points.",
+      "Grades are compared to CDC gun death rates to demonstrate correlation between strong laws and lower death rates."
+    ],
+    "important_caveats": [
+      "Grades reflect GIFFORDS Law Center's assessment of gun law strength, which is one perspective on gun policy.",
+      "The scorecard evaluates laws on the books, not enforcement or compliance.",
+      "Rankings may shift year-to-year as states pass new legislation."
+    ],
+    "verification_instructions": [
+      "Visit https://giffords.org/lawcenter/resources/scorecard2022/ to view the interactive scorecard.",
+      "Select individual states on the map or use the table view to verify grades and rankings.",
+      "Press release at press_release_url confirms specific grades mentioned (CA=A, NJ=A, NY=A-, MD=A-, CO=B+, IA=F, MO=F, MT=F)."
+    ]
+  }
+}

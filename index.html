@@ -1,0 +1,258 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Gun Violence in America – Interactive Heatmap</title>
+  <link rel="stylesheet" href="/src/styles.css">
+</head>
+<body class="bg-gray-900 text-gray-100 min-h-screen">
+  <div class="container mx-auto px-4 py-6">
+    <!-- Header -->
+    <header class="text-center mb-4">
+      <h1 class="text-3xl font-bold text-white mb-2">Gun Violence in America</h1>
+      <p id="dynamic-headline" class="text-lg text-yellow-400 font-medium"></p>
+    </header>
+
+    <!-- Main Content -->
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+      <!-- Map Column -->
+      <div class="lg:col-span-2">
+        <div class="bg-gray-800 rounded-lg p-4 shadow-lg">
+          <div id="map-container" class="relative">
+            <svg id="map" class="w-full"></svg>
+            <div id="tooltip" class="absolute hidden bg-gray-900 text-white px-3 py-2 rounded shadow-lg text-sm pointer-events-none z-50 border border-gray-700"></div>
+          </div>
+          <div id="legend" class="mt-4 flex flex-col items-center gap-1">
+            <div class="flex items-center gap-2">
+              <span id="legend-min" class="text-xs text-gray-400 w-10 text-right">0</span>
+              <div class="relative">
+                <div id="legend-gradient" class="h-4 w-64 rounded"></div>
+                <div id="legend-avg-marker" class="absolute top-0 h-4 w-0.5 bg-white hidden" style="left: 50%;">
+                  <div class="absolute -top-5 left-1/2 -translate-x-1/2 text-xs text-white whitespace-nowrap">US Avg</div>
+                </div>
+              </div>
+              <span id="legend-max" class="text-xs text-gray-400 w-10">30</span>
+            </div>
+            <span id="legend-label" class="text-xs text-gray-400">Deaths per 100k</span>
+          </div>
+        </div>
+
+        <!-- State Detail Panel (shown on click) -->
+        <div id="state-detail-panel" class="hidden bg-gray-800 rounded-lg p-4 shadow-lg mt-4 border border-gray-700">
+          <div class="flex justify-between items-start mb-3">
+            <h3 id="detail-state-name" class="text-xl font-bold text-white">State Name</h3>
+            <button id="close-detail-btn" class="text-gray-400 hover:text-white text-xl leading-none">&times;</button>
+          </div>
+          <div class="grid grid-cols-2 gap-4">
+            <div>
+              <h4 class="text-sm font-semibold text-gray-400 mb-2">Mortality Rates (per 100k)</h4>
+              <div class="space-y-1 text-sm">
+                <div class="flex justify-between"><span class="text-gray-400">Firearm:</span><span id="detail-firearm" class="font-mono"></span></div>
+                <div class="flex justify-between"><span class="text-gray-400">Homicide:</span><span id="detail-homicide" class="font-mono"></span></div>
+                <div class="flex justify-between"><span class="text-gray-400">Overdose:</span><span id="detail-overdose" class="font-mono"></span></div>
+              </div>
+            </div>
+            <div>
+              <h4 class="text-sm font-semibold text-gray-400 mb-2">Demographics</h4>
+              <div class="space-y-1 text-sm">
+                <div class="flex justify-between"><span class="text-gray-400">Income:</span><span id="detail-income" class="font-mono"></span></div>
+                <div class="flex justify-between"><span class="text-gray-400">Poverty:</span><span id="detail-poverty" class="font-mono"></span></div>
+                <div class="flex justify-between"><span class="text-gray-400">Education:</span><span id="detail-education" class="font-mono"></span></div>
+              </div>
+            </div>
+          </div>
+          <div id="detail-adjustment" class="mt-4 pt-3 border-t border-gray-700 hidden">
+            <h4 class="text-sm font-semibold text-gray-400 mb-2">Adjusted Analysis</h4>
+            <div class="grid grid-cols-3 gap-4 text-center">
+              <div>
+                <div class="text-xs text-gray-500">Actual</div>
+                <div id="detail-actual" class="text-lg font-bold text-white"></div>
+              </div>
+              <div>
+                <div class="text-xs text-gray-500">Expected</div>
+                <div id="detail-expected" class="text-lg font-bold text-blue-400"></div>
+              </div>
+              <div>
+                <div class="text-xs text-gray-500">Difference</div>
+                <div id="detail-difference" class="text-lg font-bold"></div>
+              </div>
+            </div>
+            <p id="detail-interpretation" class="text-sm text-gray-400 mt-2 text-center"></p>
+          </div>
+        </div>
+
+        <!-- Top/Bottom Tables -->
+        <div class="grid grid-cols-2 gap-4 mt-4">
+          <div class="bg-gray-800 rounded-lg p-4 shadow-lg">
+            <h3 class="text-lg font-semibold text-red-400 mb-3">Worst 10</h3>
+            <table class="w-full text-sm">
+              <thead>
+                <tr class="text-gray-400 border-b border-gray-700">
+                  <th class="text-left py-1">#</th>
+                  <th class="text-left py-1">State</th>
+                  <th class="text-right py-1">Value</th>
+                  <th id="rank-change-header-top" class="text-right py-1 hidden">Δ</th>
+                </tr>
+              </thead>
+              <tbody id="top-10-table"></tbody>
+            </table>
+          </div>
+          <div class="bg-gray-800 rounded-lg p-4 shadow-lg">
+            <h3 class="text-lg font-semibold text-green-400 mb-3">Best 10</h3>
+            <table class="w-full text-sm">
+              <thead>
+                <tr class="text-gray-400 border-b border-gray-700">
+                  <th class="text-left py-1">#</th>
+                  <th class="text-left py-1">State</th>
+                  <th class="text-right py-1">Value</th>
+                  <th id="rank-change-header-bottom" class="text-right py-1 hidden">Δ</th>
+                </tr>
+              </thead>
+              <tbody id="bottom-10-table"></tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- Comparison Mode Toggle -->
+        <div class="mt-4 bg-gray-800 rounded-lg p-3 shadow-lg">
+          <label class="flex items-center gap-2 cursor-pointer">
+            <input type="checkbox" id="compare-mode-toggle" class="w-4 h-4 rounded bg-gray-700 border-gray-600">
+            <span class="text-sm text-gray-300">Compare states (click up to 3)</span>
+          </label>
+          <div id="compare-states-list" class="hidden mt-2 flex gap-2 flex-wrap"></div>
+        </div>
+      </div>
+
+      <!-- Controls Column -->
+      <div class="lg:col-span-1">
+        <!-- Outcome Variable -->
+        <div class="bg-gray-800 rounded-lg p-4 shadow-lg mb-4">
+          <h3 class="text-lg font-semibold mb-3">Outcome Variable</h3>
+          <select id="outcome-select" class="w-full bg-gray-700 border border-gray-600 rounded px-3 py-2 text-white">
+            <option value="mortality_firearm_age_adj_12mo_ending_2023Q1">Firearm Mortality</option>
+            <option value="mortality_homicide_age_adj_12mo_ending_2023Q1">Homicide Mortality</option>
+            <option value="mortality_overdose_age_adj_12mo_ending_2023Q1">Drug Overdose Mortality</option>
+          </select>
+        </div>
+
+        <!-- Confounders -->
+        <div class="bg-gray-800 rounded-lg p-4 shadow-lg mb-4">
+          <div class="flex justify-between items-center mb-2">
+            <h3 class="text-lg font-semibold">Confounders</h3>
+            <div class="flex gap-2">
+              <button id="select-all-btn" class="text-xs px-2 py-1 bg-gray-700 hover:bg-gray-600 rounded">Select All</button>
+              <button id="clear-all-btn" class="text-xs px-2 py-1 bg-gray-700 hover:bg-gray-600 rounded">Clear All</button>
+            </div>
+          </div>
+          <!-- Column headers -->
+          <div class="flex items-center gap-2 text-xs text-gray-400 mb-2 px-2">
+            <span class="w-4"></span>
+            <span class="flex-1">Factor</span>
+            <span class="w-16 text-right text-blue-400" title="Variance explained by this factor alone">Alone</span>
+            <span class="w-16 text-right" title="Green (+): additional if added. Yellow: unique contribution when selected">+/Unique</span>
+            <span class="w-6"></span>
+          </div>
+          <div id="confounders-list" class="space-y-2"></div>
+        </div>
+
+        <!-- Variance Explained -->
+        <div class="bg-gray-800 rounded-lg p-4 shadow-lg mb-4">
+          <div class="flex justify-between items-center">
+            <span class="text-gray-400">Variance Explained:</span>
+            <span id="variance-explained" class="text-2xl font-bold text-blue-400">0%</span>
+          </div>
+          <p id="variance-callout" class="text-xs text-gray-400 mt-2 italic"></p>
+        </div>
+
+        <!-- Data Sources -->
+        <div class="bg-gray-800 rounded-lg p-4 shadow-lg text-xs text-gray-500 mb-4">
+          <h4 class="font-semibold text-gray-400 mb-2">Data Sources</h4>
+          <ul class="space-y-1">
+            <li>Mortality: CDC NCHS VSRR provisional age-adjusted death rates, 12 months ending 2023 Q1 (firearm, homicide, drug overdose).</li>
+            <li>Demographics & socioeconomics: U.S. Census Bureau, ACS 2022 1-year (income, race, poverty, education, unemployment, single-parent households).</li>
+            <li>Health: CDC BRFSS 2022 (heavy drinking and depression prevalence).</li>
+            <li>Gun policy: GIFFORDS Law Center Annual Gun Law Scorecard 2022 (grades and ranks).</li>
+            <li>Gun ownership: RAND state-level household firearm ownership estimates.</li>
+            <li>Inequality & demographics: Census ACS Gini coefficient (2019), veteran population share (2021).</li>
+            <li>Religion: Pew Research Center Religious Landscape Study 2023-24 (high religiosity score).</li>
+          </ul>
+        </div>
+
+        <!-- Export Button -->
+        <button id="export-png-btn" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded-lg shadow-lg flex items-center justify-center gap-2">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path></svg>
+          Export as PNG
+        </button>
+      </div>
+    </div>
+
+    <!-- Methodology Panel (collapsible) -->
+    <div class="mt-6">
+      <button id="methodology-toggle" class="w-full bg-gray-800 hover:bg-gray-750 rounded-lg p-4 shadow-lg flex justify-between items-center">
+        <span class="font-semibold text-gray-300">How does this work?</span>
+        <svg id="methodology-chevron" class="w-5 h-5 text-gray-400 transform transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+      </button>
+      <div id="methodology-content" class="hidden bg-gray-800 rounded-b-lg p-4 -mt-2 text-sm text-gray-300 space-y-3">
+        <div>
+          <h4 class="font-semibold text-white mb-1">What is this?</h4>
+          <p>This interactive map shows gun violence rates by state. You can adjust for confounding factors to see which states have higher or lower rates than expected.</p>
+        </div>
+        <div>
+          <h4 class="font-semibold text-white mb-1">What are confounders?</h4>
+          <p>Confounders are factors that correlate with both the outcome (gun violence) and might explain some of the variation. For example, poverty rates differ by state and correlate with violence.</p>
+        </div>
+        <div>
+          <h4 class="font-semibold text-white mb-1">What is R² (variance explained)?</h4>
+          <p>R² tells you how much of the state-to-state variation in gun violence is "explained" by the selected factors. An R² of 60% means these factors account for 60% of why some states have higher rates than others.</p>
+        </div>
+        <div>
+          <h4 class="font-semibold text-white mb-1">What are residuals?</h4>
+          <p>When confounders are selected, the map shows residuals: <span class="text-red-400">positive (red)</span> means more violence than expected, <span class="text-green-400">negative (green)</span> means less. A state with +5.0 has 5 more deaths per 100k than predicted by the model.</p>
+        </div>
+        <div>
+          <h4 class="font-semibold text-white mb-1">Interpreting results</h4>
+          <p>If a state ranks poorly in raw rates but improves after adjustment, its violence may be largely explained by demographics. If it remains an outlier, other factors (policy, culture, access) may be at play.</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Keyboard shortcuts hint -->
+    <div class="mt-4 text-center text-xs text-gray-600">
+      <span class="hidden sm:inline">Keyboard: <kbd class="px-1.5 py-0.5 bg-gray-800 rounded text-gray-400">←</kbd> <kbd class="px-1.5 py-0.5 bg-gray-800 rounded text-gray-400">→</kbd> cycle states · <kbd class="px-1.5 py-0.5 bg-gray-800 rounded text-gray-400">Esc</kbd> close panel</span>
+    </div>
+  </div>
+
+  <!-- Scatter Plot Modal -->
+  <div id="scatter-modal" class="fixed inset-0 bg-black/70 hidden z-50 flex items-center justify-center p-4">
+    <div class="bg-gray-800 rounded-lg shadow-xl max-w-2xl w-full max-h-[90vh] overflow-auto">
+      <div class="flex justify-between items-center p-4 border-b border-gray-700">
+        <h3 id="scatter-title" class="text-lg font-semibold text-white">Scatter Plot</h3>
+        <button id="scatter-close" class="text-gray-400 hover:text-white text-2xl leading-none">&times;</button>
+      </div>
+      <div class="p-4">
+        <label class="flex items-center gap-2 mb-3 text-sm text-gray-300">
+          <input type="checkbox" id="scatter-adjusted-toggle" class="w-4 h-4 rounded bg-gray-700 border-gray-600">
+          <span>Show adjusted (control for other selected confounders)</span>
+        </label>
+        <div id="scatter-container" class="w-full relative"></div>
+        <div id="scatter-tooltip" class="absolute hidden bg-gray-900 text-white px-3 py-2 rounded shadow-lg text-sm pointer-events-none z-50 border border-gray-700" style="max-width: 250px;"></div>
+        <p id="scatter-info" class="text-sm text-gray-400 mt-2 text-center"></p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Comparison Modal -->
+  <div id="compare-modal" class="fixed inset-0 bg-black/70 hidden z-50 flex items-center justify-center p-4">
+    <div class="bg-gray-800 rounded-lg shadow-xl max-w-3xl w-full max-h-[90vh] overflow-auto">
+      <div class="flex justify-between items-center p-4 border-b border-gray-700">
+        <h3 class="text-lg font-semibold text-white">State Comparison</h3>
+        <button id="compare-close" class="text-gray-400 hover:text-white text-2xl leading-none">&times;</button>
+      </div>
+      <div id="compare-content" class="p-4"></div>
+    </div>
+  </div>
+
+  <script type="module" src="/src/main.js"></script>
+</body>
+</html>
